@@ -3,7 +3,7 @@
 
 // --- Пины ---
 #define PIN_MQ135 A0
-#define DHTPIN    5
+#define DHTPIN    2
 #define RGB_R     9
 #define RGB_G     10
 #define RGB_B     11
@@ -15,7 +15,7 @@
 #define VREF            5.0
 
 // --- DHT ---
-#define DCTTYPE DHT22
+#define DHTTYPE DHT22
 DHT dht(DHTPIN, DHTTYPE);
 MQUnifiedsensor MQ135("Arduino", VREF, ADC_RESOLUTION, PIN_MQ135, "MQ-135");
 
@@ -52,7 +52,7 @@ void beep(int duration_ms) {
 }
 
 void setup() {
-  //Serial.begin(9600);
+  Serial.begin(9600);
 
   // Инициализация пинов
   pinMode(RGB_R, OUTPUT);
@@ -70,7 +70,7 @@ void setup() {
   MQ135.setB(MQ_B);
 
   // Быстрая калибровка R0
-  //Serial.println("Calibrating MQ-135 (quick, assuming ~400 ppm CO2)...");
+  Serial.println("Calibrating MQ-135 (quick, assuming ~400 ppm CO2)...");
   delay(3000);
 
   int raw = analogRead(PIN_MQ135);
@@ -78,8 +78,8 @@ void setup() {
   float Rs = (VREF / VRL - 1.0) * RL_VALUE;
   float R0 = Rs / 1.0;
   MQ135.setR0(R0);
-  //Serial.print("R0 = "); Serial.println(R0, 3);
-  //Serial.println("Ready");
+  Serial.print("R0 = "); Serial.println(R0, 3);
+  Serial.println("Ready");
 }
 
 void loop() {
@@ -88,7 +88,7 @@ void loop() {
   float temp = dht.readTemperature();
 
   if (isnan(hum) || isnan(temp)) {
-    //Serial.println("DHT read failed — using fallback humidity");
+    Serial.println("DHT read failed — using fallback humidity");
     hum = RH_REF;
   }
 
@@ -122,7 +122,7 @@ void loop() {
   bool warning = (diff > DERIVATIVE_THRESHOLD);
   bool critical = (diff > DERIVATIVE_CRITICAL);
 
-  /* --- Вывод в Serial ---
+  // --- Вывод в Serial ---
   Serial.print("T: "); Serial.print(temp, 1);
   Serial.print("°C  RH: "); Serial.print(hum, 1);
   Serial.print("%  PPM: "); Serial.print(current, 1);
@@ -132,7 +132,7 @@ void loop() {
   if (critical) Serial.println("CRITICAL");
   else if (warning) Serial.println("WARNING");
   else Serial.println("OK");
-  */
+  
 
   // --- Управление RGB ---
   if (critical) {
